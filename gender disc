@@ -7,13 +7,13 @@ summary(data)
 data[,Avg_sal := (data$Sal94 + data$Sal95)/2]
 
 ggplot(data , aes(x = factor(Gender), y = Avg_sal)) + geom_boxplot()
-
 ggplot(data , aes(x = factor(Gender), y = Exper)) + geom_boxplot()
-
-
-data
+ggplot(data , aes(x = factor(Gender), y = Prate)) + geom_boxplot()
 
 ggplot(data , aes(x = factor(Rank), fill = factor(Gender))) + geom_bar(position= "stack") 
+ggplot(data , aes(x = factor(Cert), fill = factor(Gender))) + geom_bar(position= "stack") 
+ggplot(data , aes(x = factor(Clin), fill = factor(Gender))) + geom_bar(position= "stack") 
+
 
 cor(data$Gender, data$Avg_sal)
 cor(data$Gender, data$Rank)
