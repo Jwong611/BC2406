@@ -41,3 +41,18 @@ ggplot(data, aes(x = Prate, y = Avg_sal)) + geom_point() + labs(title = "Prate v
 
 # prate v gender
 ggplot(data, aes(x = factor(Gender), y = Prate)) + geom_boxplot() + labs(title = "Prate vs Gender")
+
+#rank vs gender
+ggplot(data , aes(x = factor(Rank), fill = factor(Gender))) + geom_bar(position= "stack") + labs(title = "Rank VS Gender")
+#correlation 
+cor(data$Gender, data$Rank)
+
+#rank vs experience
+ggplot(data , aes(x = factor(Rank), y = Exper)) + geom_boxplot() + labs(title="Rank VS Experience")
+#correlation
+cor(data$Rank , data$Exper)
+
+#gender vs experience
+ggplot(data , aes(x = factor(Gender), y = Exper)) + geom_boxplot() + labs(title="Gender VS Experience")
+#correlation
+cor(data$Gender, data$Exper)
