@@ -30,3 +30,14 @@ cor(data$Gender, data$Prate)
 cor(data$Gender, data$Cert)
 cor(data$Gender, data$Clin)
 cor(data$Gender, data$Dept)
+
+# prate v rank
+ggplot(data, aes(x = factor(Rank), y = Prate)) + geom_boxplot() + labs(title = "Prate vs Rank")
+
+# prate v salary
+data[,Avg_sal := (data$Sal94 + data$Sal95)/2]
+ggplot(data, aes(x = Prate, y = Avg_sal)) + geom_point() + labs(title = "Prate vs Average Salary") # no splitting
+ggplot(data, aes(x = Prate, y = Avg_sal)) + geom_point() + labs(title = "Prate vs Average Salary") + facet_wrap(~ Gender) # split by gender
+
+# prate v gender
+ggplot(data, aes(x = factor(Gender), y = Prate)) + geom_boxplot() + labs(title = "Prate vs Gender")
