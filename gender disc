@@ -48,7 +48,6 @@ cor(data$Gender, data$Dept)
 ggplot(data, aes(x = factor(Rank), y = Prate)) + geom_boxplot() + labs(title = "Prate vs Rank")
 
 # prate v salary
-data[,Avg_sal := (data$Sal94 + data$Sal95)/2]
 ggplot(data, aes(x = Prate, y = Avg_sal)) + geom_point() + labs(title = "Prate vs Average Salary") # no splitting
 ggplot(data, aes(x = Prate, y = Avg_sal)) + geom_point() + labs(title = "Prate vs Average Salary") + facet_wrap(~ Gender) # split by gender
 
@@ -70,9 +69,7 @@ ggplot(data , aes(x = factor(Gender), y = Exper)) + geom_boxplot() + labs(title=
 #correlation
 cor(data$Gender, data$Exper)
 
-# Experience Vs. Salary by Gender
-ggplot(data, aes(x = Exper, y = Avg_sal, color = factor(Gender))) +
-  geom_point(show.legend = TRUE) +
-  geom_smooth(method="lm", se = FALSE)
-  labs(title = "Experience vs. Salary") +
+# Experience Vs Salary by Gender
+ggplot(data, aes(x = Exper, y = Avg_sal, color = factor(Gender))) + geom_point(show.legend = TRUE) +
+  geom_smooth(method="lm", se = FALSE) + labs(title = "Experience vs. Salary") +
   scale_color_discrete(labels = c("Female", "Male"))
