@@ -1,28 +1,41 @@
+# Importing Necessary Libraries
 library(data.table)
 library(ggplot2)
 
+# Show whole numbers instead of scientific notation
+options("scipen" = 100)
+
+# Import a data file and store it as data table data in R
+# Quick summary of the data table
 data <- fread("Lawsuit.csv")
 summary(data)
 
+# Calculating the Average Salary
 data[,Avg_sal := (data$Sal94 + data$Sal95)/2]
 
+# Distribution of Average Salary by Gender
 ggplot(data , aes(x = factor(Gender), y = Avg_sal)) + geom_boxplot()
 
+# Distribution of Years of Experience by Gender
 ggplot(data , aes(x = factor(Gender), y = Exper)) + geom_boxplot()
 
-
-
+# Distribution of Average Salary by Experience
 ggplot(data , aes(x = Exper, y = Avg_sal)) + geom_point()
 
-
+# Distribution of Publication Rate by Gender
 ggplot(data , aes(x = factor(Gender), y = Prate)) + geom_boxplot()
 
-ggplot(data , aes(x = factor(Rank), fill = factor(Gender))) + geom_bar(position= "stack") 
+# Distribution of Rank by Gender
+ggplot(data , aes(x = factor(Rank), fill = factor(Gender))) + geom_bar(position= "stack")
+
+# Distribution of Board Certification by Gender
 ggplot(data , aes(x = factor(Cert), fill = factor(Gender))) + geom_bar(position= "stack") 
+
+# Distribution of Clinical/Research Emphasis by Gender
 ggplot(data , aes(x = factor(Clin), fill = factor(Gender))) + geom_bar(position= "stack") 
 
+# Correlation of Variables against Gender
 cor(data$Exper, data$Avg_sal)
-
 cor(data$Gender, data$Avg_sal)
 cor(data$Gender, data$Rank)
 cor(data$Gender, data$Exper)
@@ -56,3 +69,10 @@ cor(data$Rank , data$Exper)
 ggplot(data , aes(x = factor(Gender), y = Exper)) + geom_boxplot() + labs(title="Gender VS Experience")
 #correlation
 cor(data$Gender, data$Exper)
+
+# Experience Vs. Salary by Gender
+ggplot(data, aes(x = Exper, y = Avg_sal, color = factor(Gender))) +
+  geom_point(show.legend = TRUE) +
+  geom_smooth(method="lm", se = FALSE)
+  labs(title = "Experience vs. Salary") +
+  scale_color_discrete(labels = c("Female", "Male"))
