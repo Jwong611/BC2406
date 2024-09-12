@@ -73,3 +73,33 @@ cor(data$Gender, data$Exper)
 ggplot(data, aes(x = Exper, y = Avg_sal, color = factor(Gender))) + geom_point(show.legend = TRUE) +
   geom_smooth(method="lm", se = FALSE) + labs(title = "Experience vs. Salary") +
   scale_color_discrete(labels = c("Female", "Male"))
+
+# gender vs cert 
+data$Gender <- factor(data$Gender,
+                         levels = c(0,1),
+                         labels = c("Female","Male"))
+
+ggplot(data, aes(x = factor(Cert), y = Avg_sal, fill=Gender)) + geom_boxplot() + labs(title = "Certification vs Average Salary by Gender") + facet_wrap(~ Gender)
+
+
+#cert vs salary 
+data$Cert <- factor(data$Cert,
+                       levels = c(0,1),
+                       labels = c("Not certified", "Board Certified"))
+
+ggplot(data, aes(x = factor(Cert), y = Avg_sal)) + geom_boxplot() + labs(title = "Certification vs Average Salary") 
+
+#cert vs rank by gender
+data$Cert <- factor(data$Cert,
+                    levels = c(0,1),
+                    labels = c("Not certified", "Board Certified"))
+
+data$Gender <- factor(data$Gender,
+                      levels = c(0,1),
+                      labels = c("Female","Male"))
+
+data$Rank <- factor(data$Rank,
+                       levels = c(1,2,3),
+                       labels = c("Assistant","Associate",
+                                  "Full Professor"))
+ggplot(data, aes(x = factor(Cert), y = Avg_sal, fill=Gender)) + geom_boxplot() + labs(title = "Certification vs Average Salary by Gender & Rank") + facet_grid(~Rank)
