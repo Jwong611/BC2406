@@ -81,7 +81,7 @@ ggplot(filtered_dt, aes(x = Exper, y = Avg_sal, color = factor(Gender))) + geom_
   scale_color_discrete(labels = c("Female", "Male"))
 
 # Discrimination, prate/sal/gender#
-genetics_surgery_data <- data[Clin == 0 & Dept %in% c("3")]
+genetics_surgery_data <- data[Clin == 0 & Dept %in% c("Genetics")]
 
 ggplot(genetics_surgery_data, aes(x = Prate, y = Avg_sal, color = Gender)) +
   geom_boxplot() +
