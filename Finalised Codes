@@ -17,8 +17,24 @@ data <- fread("Lawsuit.csv")
 summary(data)
 # ===========================================================
 # Data Restructuring
+#Relabelling of columns 
+data$Gender <- factor(data$Gender,
+                      levels = c(0,1),
+                      labels = c("Female","Male"))
 
-# Calculating the Average Salary
+data$Rank <- factor(data$Rank,
+                    levels = c(1,2,3),
+                    labels = c("Assistant","Associate",
+                               "Full Professor"))
+data$Dept <- factor(data$Dept,
+                    levels = c(1,2,3,4,5,6),
+                    labels = c("BioChemistry", "Physiology", "Genetics", "Pediatrics", "Medicine", "Surgery"))
+
+data$Cert <- factor(data$Cert,
+                    levels = c(0,1),
+                    labels = c("Not certified", "Board Certified"))
+
+# Calculating the Average Salary 
 data[,Avg_sal := (data$Sal94 + data$Sal95)/2]
 
 # Dropping of Unnecessary Columns
@@ -27,7 +43,7 @@ data[, ':='(Sal94 = NULL, Sal95 = NULL, ID = NULL)]
 # Overall Analysis
 
 # Correlation Matrix
-ggcorrplot(round(cor(lawsuit.dt),3), hc.order = TRUE, lab = TRUE)
+ggcorrplot(round(cor(data),3), hc.order = TRUE, lab = TRUE)
 
 # Rank is highly correlated to Experience
 # Average Salary is correlated to almost every factor, but the highest being Department.
@@ -52,12 +68,12 @@ ggplot(data, aes(x = Exper_group, fill = factor(Rank))) +
 
 # ===========================================================
 # Distribution of Average Salary for Each Department By Gender
-
+ggplot(data, aes(x = factor(Dept), y = Avg_sal, fill=Gender)) + geom_boxplot() + labs(title = "Department vs Average Salary by Gender") 
 
 # From here, we can see that male doctors earn more than female doctors across all departments.
 
 # Focusing on only Surgery & Genetics Departments
-filtered_dt <- data[Dept == 3  | Dept == 6,]
+filtered_dt <- data[Dept == "Genetics"  | Dept == "Surgery",]
 
 # Experience vs Salary by Gender
 ggplot(filtered_dt, aes(x = Exper, y = Avg_sal, color = factor(Gender))) + geom_point(show.legend = TRUE) +
