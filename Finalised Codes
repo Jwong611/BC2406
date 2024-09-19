@@ -17,7 +17,19 @@ data <- fread("Lawsuit.csv")
 summary(data)
 # ===========================================================
 # Data Restructuring
-#Relabelling of columns 
+# Calculating the Average Salary 
+data[,Avg_sal := (data$Sal94 + data$Sal95)/2]
+
+# Dropping of Unnecessary Columns
+data[, ':='(Sal94 = NULL, Sal95 = NULL, ID = NULL)]
+# ===========================================================
+# Correlation Matrix
+ggcorrplot(round(cor(data),3), hc.order = TRUE, lab = TRUE)
+
+# Rank is highly correlated to Experience
+# Average Salary is correlated to almost every factor, but the highest being Department.
+# ===========================================================
+# Relabelling of columns 
 data$Gender <- factor(data$Gender,
                       levels = c(0,1),
                       labels = c("Female","Male"))
@@ -34,20 +46,8 @@ data$Cert <- factor(data$Cert,
                     levels = c(0,1),
                     labels = c("Not certified", "Board Certified"))
 
-# Calculating the Average Salary 
-data[,Avg_sal := (data$Sal94 + data$Sal95)/2]
-
-# Dropping of Unnecessary Columns
-data[, ':='(Sal94 = NULL, Sal95 = NULL, ID = NULL)]
 # ===========================================================
 # Overall Analysis
-
-# Correlation Matrix
-ggcorrplot(round(cor(data),3), hc.order = TRUE, lab = TRUE)
-
-# Rank is highly correlated to Experience
-# Average Salary is correlated to almost every factor, but the highest being Department.
-
 # Distribution of Years of Experience by Rank
 ggplot(data , aes(x = factor(Rank), y = Exper)) + geom_boxplot() + labs(title="Rank VS Experience")
 
