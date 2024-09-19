@@ -72,14 +72,6 @@ ggplot(data, aes(x = factor(Dept), y = Avg_sal, fill=Gender)) + geom_boxplot() +
 
 # From here, we can see that male doctors earn more than female doctors across all departments.
 
-# Focusing on only Surgery & Genetics Departments
-filtered_dt <- data[Dept == "Genetics"  | Dept == "Surgery",]
-
-# Experience vs Salary by Gender
-ggplot(filtered_dt, aes(x = Exper, y = Avg_sal, color = factor(Gender))) + geom_point(show.legend = TRUE) +
-  geom_smooth(method="lm", se = FALSE) + labs(title = "Experience vs Salary by Gender") +
-  scale_color_discrete(labels = c("Female", "Male"))
-
 # Discrimination, prate/sal/gender#
 genetics_surgery_data <- data[Clin == 0 & Dept %in% c("Genetics")]
 
