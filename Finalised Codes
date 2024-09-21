@@ -1,7 +1,7 @@
 # ==========================================================
 # Purpose: RScript for Gender Discrimination Lawsuit
 # Author:  Group 1
-# DOC:     17-09-2024
+# DOC:     21-09-2024
 # ==========================================================
 # Importing Necessary Libraries
 library(data.table)
@@ -24,7 +24,7 @@ data[,Avg_sal := (data$Sal94 + data$Sal95)/2]
 data[, ':='(Sal94 = NULL, Sal95 = NULL, ID = NULL)]
 # ===========================================================
 # Correlation Matrix
-ggcorrplot(round(cor(data),3), hc.order = TRUE, lab = TRUE)
+ggcorrplot(round(cor(data),3), hc.order = TRUE, lab = TRUE) + labs(title= "Correlation Matrix")
 
 # Rank is highly correlated to Experience
 # Average Salary is correlated to almost every factor, but the highest being Department.
@@ -45,11 +45,10 @@ data$Dept <- factor(data$Dept,
 data$Cert <- factor(data$Cert,
                     levels = c(0,1),
                     labels = c("Not certified", "Board Certified"))
-
 # ===========================================================
 # Overall Analysis
 # Distribution of Years of Experience by Rank
-ggplot(data , aes(x = factor(Rank), y = Exper)) + geom_boxplot() + labs(title="Rank VS Experience")
+ggplot(data , aes(x = Rank, y = Exper)) + geom_boxplot() + labs(title = "Rank VS Experience")
 
 # Generally, doctors with more experience have a higher rank. 
 # Thus, we would see the distribution of male to female doctors for each year of experience category and their rank.
@@ -60,19 +59,20 @@ labels <- c("1-10 years", "11-20 years", "More than 20 Years")
 data[, Exper_group := cut(Exper, breaks = bins, labels = labels, right = TRUE)]
 
 # Count of Doctors in each Rank by Years of Experience and Gender
-ggplot(data, aes(x = Exper_group, fill = factor(Rank))) +
+ggplot(data, aes(x = Exper_group, fill = Rank)) +
   geom_bar(stat = "count", position = "dodge") +
   facet_wrap(~ Gender) + labs(x = "Years of Experience", y = "Number of Doctors", title = "Distribution of Rank by Gender and Years of Experience")
 
 # From here, we can see that for doctors in the same group with years of experience, there is a much higher number of male doctors in higher positions than female doctors.
-
 # ===========================================================
 # Distribution of Average Salary for Each Department By Gender
-ggplot(data, aes(x = factor(Dept), y = Avg_sal, fill=Gender)) + geom_boxplot() + labs(title = "Department vs Average Salary by Gender") 
+ggplot(data, aes(x = Dept, y = Avg_sal, fill = Gender)) + geom_boxplot() + labs(title = "Average Salary in Each Department by Gender") 
 
 # From here, we can see that male doctors earn more than female doctors across all departments.
 
-# Discrimination, prate/sal/gender#
+# Discrimination, prate/sal/gender
+
+# Filetering into the department with the highest difference in salary
 genetics_surgery_data <- data[Clin == 0 & Dept %in% c("Genetics")]
 
 ggplot(genetics_surgery_data, aes(x = Prate, y = Avg_sal, color = Gender)) +
@@ -80,5 +80,4 @@ ggplot(genetics_surgery_data, aes(x = Prate, y = Avg_sal, color = Gender)) +
   labs(title = "Publication Rate vs Average Salary by Gender (Genetics)",
        x = "Prate",
        y = "Avg_sal",
-       color = "Gender") +
-  theme_minimal()
+       color = "Gender")
