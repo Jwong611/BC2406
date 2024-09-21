@@ -54,7 +54,7 @@ ggplot(data , aes(x = Rank, y = Exper)) + geom_boxplot() + labs(title = "Rank VS
 # Thus, we would see the distribution of male to female doctors for each year of experience category and their rank.
 
 # Define experience bins & Create the experience group column
-bins <- c(0, 10, 20, 40)
+bins <- c(0, 10, 20, Inf)
 labels <- c("1-10 years", "11-20 years", "More than 20 Years")
 data[, Exper_group := cut(Exper, breaks = bins, labels = labels, right = TRUE)]
 
