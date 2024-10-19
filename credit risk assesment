@@ -1,0 +1,17 @@
+library(data.table)
+
+data <- fread('credit_risk_dataset.csv')
+
+
+#dropping rows with age more than 120 , human lifepsan may go up to a max of 120
+data <- data[data$person_age < 120 , ]
+
+#dropping rows where their employment years are more than their age
+data <- data[data$person_emp_length < data$person_age , ]
+
+#taking out rows that have any NA values 
+data <- na.omit(data)
+
+
+summary(data)
+
