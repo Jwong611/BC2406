@@ -13,5 +13,22 @@ data <- data[data$person_emp_length < data$person_age , ]
 data <- na.omit(data)
 
 
-summary(data)
+#logistic regression
+set.seed(2)
+
+train <- sample.split(data$loan_status , SplitRatio = 0.7)
+
+trainset <- subset(data , train == T)
+testset <- subset(data , train ==F)
+
+m1 <- glm(loan_status ~ ., data = trainset , family = binomial)
+
+m1.prob <- predict(m1 , newdata=testset , type = "response")
+m1.pred <- ifelse(m1.prob > 0.5 , "Yes" , "No")
+
+table(actual = testset$loan_status ,prediction = m1.pred)
+
+mean(testset$loan_status == m1.pred)
+
+summary(m1)
 
