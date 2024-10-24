@@ -1,7 +1,8 @@
 library(data.table)
 library(caTools)        # train-test split
 library(rpart)          # CART
-library(rpart.plot)  
+library(rpart.plot)
+library(ggcorrplot)
 library(car)
 
 setwd("C:/NTU/Y2S1/BC2406 - Predictive Analytics/Projects")
@@ -27,13 +28,14 @@ data$loan_status <- factor(data$loan_status,
                            levels = c(0,1),
                            labels = c("Non-Default","Default"))
 
+
 # Correlation Matrix 
-dt <- data
+dt_copy <- copy(data)
 
 factor_variables <- c("person_home_ownership", "loan_intent", "cb_person_default_on_file", "loan_status")
 
 # Converting factorized variables to numbers for correlation plot
-dt[, (factor_variables) := lapply(.SD, as.numeric), .SDcols = factor_variables]
+dt_copy[, (factor_variables) := lapply(.SD, as.numeric), .SDcols = factor_variables]
 
 # Plotting a correlation plot
 ggcorrplot(round(cor(dt),3), hc.order = TRUE, lab = TRUE) + labs(title= "Correlation Matrix")
@@ -44,8 +46,8 @@ set.seed(2)
 
 train <- sample.split(data$loan_status, SplitRatio = 0.7)
 
-trainset <- subset(data , train == T)
-testset <- subset(data , train == F)
+trainset <- subset(data, train == T)
+testset <- subset(data, train == F)
 
 #############################################################################################
 
@@ -107,4 +109,3 @@ m4.pred <- ifelse(m4.prob[, 2] > 0.5, "Default", "Non-Default")
 table(actual = testset$loan_status, prediction = m4.pred)
 
 mean(testset$loan_status == m4.pred)
-
