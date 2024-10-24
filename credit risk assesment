@@ -10,7 +10,7 @@ data <- fread('credit_risk_dataset.csv')
 
 # Data Cleaning
 #dropping rows with age more than 120 , human lifespan may go up to a max of 120
-data <- data[data$person_age < 120 , ]
+data <- data[data$person_age < 120, ]
 
 #dropping rows where their employment years are more than their age
 data <- data[data$person_emp_length < data$person_age , ]
@@ -20,9 +20,9 @@ data <- na.omit(data)
 
 
 # Factoring Variables
-data$person_home_ownership <- as.factor(data$person_home_ownership)
+data$person_home_ownership <- factor(data$person_home_ownership)
 data$loan_intent <- factor(data$loan_intent)
-data$cb_person_default_on_file <- as.factor(data$cb_person_default_on_file)
+data$cb_person_default_on_file <- factor(data$cb_person_default_on_file)
 data$loan_status <- factor(data$loan_status,
                            levels = c(0,1),
                            labels = c("Non-Default","Default"))
@@ -42,10 +42,10 @@ ggcorrplot(round(cor(dt),3), hc.order = TRUE, lab = TRUE) + labs(title= "Correla
 # Train-Test Split
 set.seed(2)
 
-train <- sample.split(data$loan_status , SplitRatio = 0.7)
+train <- sample.split(data$loan_status, SplitRatio = 0.7)
 
 trainset <- subset(data , train == T)
-testset <- subset(data , train ==F)
+testset <- subset(data , train == F)
 
 #############################################################################################
 
@@ -55,7 +55,7 @@ m1 <- glm(loan_status ~ ., data = trainset , family = binomial)
 m1.prob <- predict(m1 , newdata=testset , type = "response")
 m1.pred <- ifelse(m1.prob > 0.5 , "Default" , "Non-Default")
 
-table(actual = testset$loan_status ,prediction = m1.pred)
+table(actual = testset$loan_status, prediction = m1.pred)
 
 mean(testset$loan_status == m1.pred)
 
@@ -104,7 +104,7 @@ m4.prob <- predict(m4 , newdata = testset , type = "prob")
 
 m4.pred <- ifelse(m4.prob[, 2] > 0.5, "Default", "Non-Default")
 
-table(actual = testset$loan_status, prediction = m4pred)
+table(actual = testset$loan_status, prediction = m4.pred)
 
 mean(testset$loan_status == m4.pred)
 
