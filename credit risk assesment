@@ -2,11 +2,14 @@ library(data.table)
 library(caTools)        # train-test split
 library(rpart)          # CART
 library(rpart.plot)  
+library(car)
+
+setwd("C:/NTU/Y2S1/BC2406 - Predictive Analytics/Projects")
 
 data <- fread('credit_risk_dataset.csv')
 
 # Data Cleaning
-#dropping rows with age more than 120 , human lifepsan may go up to a max of 120
+#dropping rows with age more than 120 , human lifespan may go up to a max of 120
 data <- data[data$person_age < 120 , ]
 
 #dropping rows where their employment years are more than their age
@@ -15,16 +18,28 @@ data <- data[data$person_emp_length < data$person_age , ]
 #taking out rows that have any NA values 
 data <- na.omit(data)
 
+
 # Factoring Variables
 data$person_home_ownership <- as.factor(data$person_home_ownership)
-data$loan_intent <- as.factor(data$loan_intent)
+data$loan_intent <- factor(data$loan_intent)
 data$cb_person_default_on_file <- as.factor(data$cb_person_default_on_file)
 data$loan_status <- factor(data$loan_status,
                            levels = c(0,1),
                            labels = c("Non-Default","Default"))
 
+# Correlation Matrix 
+dt <- data
+
+factor_variables <- c("person_home_ownership", "loan_intent", "cb_person_default_on_file", "loan_status")
+
+# Converting factorized variables to numbers for correlation plot
+dt[, (factor_variables) := lapply(.SD, as.numeric), .SDcols = factor_variables]
+
+# Plotting a correlation plot
+ggcorrplot(round(cor(dt),3), hc.order = TRUE, lab = TRUE) + labs(title= "Correlation Matrix")
+
 #############################################################################################
-#logistic regression
+# Train-Test Split
 set.seed(2)
 
 train <- sample.split(data$loan_status , SplitRatio = 0.7)
@@ -32,38 +47,32 @@ train <- sample.split(data$loan_status , SplitRatio = 0.7)
 trainset <- subset(data , train == T)
 testset <- subset(data , train ==F)
 
+#############################################################################################
+
+#logistic regression
 m1 <- glm(loan_status ~ ., data = trainset , family = binomial)
 
-# Predict on test set
 m1.prob <- predict(m1 , newdata=testset , type = "response")
-
-# Evaluating Model
 m1.pred <- ifelse(m1.prob > 0.5 , "Default" , "Non-Default")
+
 table(actual = testset$loan_status ,prediction = m1.pred)
 
-# Model Accuracy
 mean(testset$loan_status == m1.pred)
+
+vif(m1)
+
 summary(m1)
 
-
-
-updated_data = data[, ":="(person_age = NULL, person_income = NULL ,person_emp_length=NULL,cb_person_default_on_fileY = NULL ,  cb_person_cred_hist_length = NULL)]
-
-
-train <- sample.split(updated_data$loan_status , SplitRatio = 0.7)
-
-trainset <- subset(updated_data , train == T)
-testset <- subset(updated_data , train ==F)
-
-m2 <- glm(loan_status ~ ., data = trainset , family = binomial)
+# Updated Logistic Model
+m2 <- glm(loan_status ~. -person_age -person_income -person_emp_length -cb_person_default_on_file -cb_person_cred_hist_length,
+          data = trainset, family = binomial)
 
 m2.prob <- predict(m2 , newdata=testset , type = "response")
 m2.pred <- ifelse(m2.prob > 0.5 , "Default" , "Non-Default")
 
-table(actual = testset$loan_status ,prediction = m2.pred)
+table(actual = testset$loan_status, prediction = m2.pred)
 
 mean(testset$loan_status == m2.pred)
-
 #############################################################################################
 # CART Decision Tree
 # Maximal Tree
@@ -91,15 +100,11 @@ cp.opt = ifelse(i > 1, sqrt(m2$cptable[i,1] * m2$cptable[i-1,1]), 1)
 # Prune the tree
 m3 <- prune(m2, cp = cp.opt)
 
-# Predict on test set
 m3.prob <- predict(m3 , newdata = testset , type = "prob")
 
-# Evaluating Model
 m3.pred <- ifelse(m3.prob[, 2] > 0.5, "Default", "Non-Default")
+
 table(actual = testset$loan_status, prediction = m3.pred)
 
-# Model Accuracy
 mean(testset$loan_status == m3.pred)
-
-summary(m3)
 
