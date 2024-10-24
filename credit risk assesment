@@ -76,35 +76,35 @@ mean(testset$loan_status == m2.pred)
 #############################################################################################
 # CART Decision Tree
 # Maximal Tree
-m2 <- rpart(loan_status ~ ., data = trainset, method = "class", 
+m3 <- rpart(loan_status ~ ., data = trainset, method = "class", 
             control = rpart.control(minsplit = 2, cp = 0))
 
 
 # Display the pruning sequence and 10-fold CV errors, as a chart.
-plotcp(m2, main = "Subtrees in credit risk.csv")
+plotcp(m3, main = "Subtrees in credit risk.csv")
 
 # Extracting the optimal tree
 # Compute min CVerror + 1SE in maximal tree.
-CVerror.cap <- m2$cptable[which.min(m2$cptable[,"xerror"]), "xerror"] + 
-  m2$cptable[which.min(m2$cptable[,"xerror"]), "xstd"]
+CVerror.cap <- m3$cptable[which.min(m3$cptable[,"xerror"]), "xerror"] + 
+  m3$cptable[which.min(m3$cptable[,"xerror"]), "xstd"]
 
 # Find the optimal CP region whose CV error is just below CVerror.cap in maximal tree cart.
 i <- 1; j<- 4
-while (m2$cptable[i,j] > CVerror.cap){
+while (m3$cptable[i,j] > CVerror.cap){
   i <- i + 1
 }
 
 # Get geometric mean of the two identified CP values in the optimal region if optimal tree has at least one split.
-cp.opt = ifelse(i > 1, sqrt(m2$cptable[i,1] * m2$cptable[i-1,1]), 1)
+cp.opt = ifelse(i > 1, sqrt(m3$cptable[i,1] * m3$cptable[i-1,1]), 1)
 
 # Prune the tree
-m3 <- prune(m2, cp = cp.opt)
+m4 <- prune(m3, cp = cp.opt)
 
-m3.prob <- predict(m3 , newdata = testset , type = "prob")
+m4.prob <- predict(m4 , newdata = testset , type = "prob")
 
-m3.pred <- ifelse(m3.prob[, 2] > 0.5, "Default", "Non-Default")
+m4.pred <- ifelse(m4.prob[, 2] > 0.5, "Default", "Non-Default")
 
-table(actual = testset$loan_status, prediction = m3.pred)
+table(actual = testset$loan_status, prediction = m4pred)
 
-mean(testset$loan_status == m3.pred)
+mean(testset$loan_status == m4.pred)
 
