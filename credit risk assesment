@@ -45,6 +45,24 @@ table(actual = testset$loan_status ,prediction = m1.pred)
 mean(testset$loan_status == m1.pred)
 
 summary(m1)
+
+#Optimizing model 
+updated_data = data[, ":="(person_age = NULL, person_income = NULL ,person_emp_length=NULL,cb_person_default_on_fileY = NULL ,  cb_person_cred_hist_length = NULL)]
+
+
+train <- sample.split(updated_data$loan_status , SplitRatio = 0.7)
+
+trainset <- subset(updated_data , train == T)
+testset <- subset(updated_data , train ==F)
+
+m2 <- glm(loan_status ~ ., data = trainset , family = binomial)
+
+m2.prob <- predict(m2 , newdata=testset , type = "response")
+m2.pred <- ifelse(m2.prob > 0.5 , "Yes" , "No")
+
+table(actual = testset$loan_status ,prediction = m2.pred)
+
+mean(testset$loan_status == m2.pred)
 #############################################################################################
 # CART Decision Tree
 # Maximal Tree
