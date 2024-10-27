@@ -13,6 +13,8 @@ library(rpart)          # CART
 library(rpart.plot)     # enhanced tree plots
 library(caTools)        # train-test split
 library(car)            # multi-collinearity
+library(dplyr)
+
 
 setwd("C:/NTU/Y2S1/BC2406 - Predictive Analytics/Projects")
 
@@ -46,6 +48,55 @@ data$loan_status <- factor(data$loan_status,
 #-----------------------------------------------------------------------------------------------------------#
 # Data Exploration
 #-----------------------------------------------------------------------------------------------------------#
+########################################## Univariate Analysis ############################################
+
+########################################## Continuous Variables ############################################
+
+# Age Plot
+ggplot(data = data, aes(x = person_age)) + geom_histogram()
+
+# Income Plot
+ggplot(data = data, aes(y = log(person_income) , x = factor(1))) + geom_boxplot()
+
+# Employment Length (in years) Plot
+ggplot(data = data, aes(x = person_emp_length)) + geom_histogram()
+
+# Loan Amount Plot
+ggplot(data = data, aes(x = loan_amnt)) + geom_histogram()
+
+# Loan Interest Rate Plot
+ggplot(data = data, aes(x = loan_int_rate)) + geom_histogram()
+
+# Loan Percent Income plot
+ggplot(data = data, aes(y = loan_percent_income , x = factor(1))) + geom_boxplot()
+
+# Credit History Length Plot
+ggplot(data = data, aes(x = cb_person_cred_hist_length)) + geom_histogram()
+
+########################################## Categorical Variables ############################################
+# Home Ownership plot
+ggplot(data = data, aes(x = person_home_ownership)) + geom_bar()
+
+# Loan Intent Plot
+# Renaming variables under loan_intent to make plot clearer
+data_short <- data %>%
+  mutate(loan_intent = recode(loan_intent,
+                              "PERSONAL" = "Per",
+                              "EDUCATION" = "Edu",
+                              "MEDICAL" = "Med",
+                              "VENTURE" = "Ven",
+                              "HOMEIMPROVEMENT" = "Home",
+                              "DEBTCONSOLIDATION" = "Debt"))
+ggplot(data = data_short, aes(x = loan_intent)) + geom_bar()
+
+# Loan Status Plot
+ggplot(data = data_short, aes(x = loan_status)) + geom_bar()
+
+# Historical Loan Defaults Plot
+ggplot(data = data_short, aes(x = cb_person_default_on_file)) + geom_bar()
+
+########################################## Bivariate Analysis ############################################
+
 ########################################## Categorical Variables ############################################
 # Distribution of Customers' Home Ownership Status
 ggplot(data, aes(x = person_home_ownership)) + 
