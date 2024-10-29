@@ -281,3 +281,46 @@ m4.pred <- ifelse(m4.prob[, 2] > 0.5, "Default", "Non-Default")
 table(actual = testset$loan_status, prediction = m4.pred)
 
 mean(testset$loan_status == m4.pred)
+
+#############################################################################################
+#Linear Regression
+
+set.seed(2)
+library(glm2)
+library(caTools)
+
+train <- sample.split(data$loan_amnt , SplitRatio = 0.7)
+
+trainset <- subset(data , train == T)
+testset <- subset(data , train ==F)
+
+m1 <- lm(loan_amnt ~ ., data = trainset)
+
+summary(m1)
+
+m1_pred <- predict(m1 , newdata=testset)
+
+# Step 3: Calculate RMSE
+rmse <- sqrt(mean((m1_pred - testset$loan_amnt)^2))
+
+# Output RMSE
+print(rmse)
+
+updated_data = data[, ":="(person_age = NULL ,cb_person_default_on_fileY  = NULL ,  cb_person_cred_hist_length = NULL)]
+
+train <- sample.split(updated_data$loan_amnt , SplitRatio = 0.7)
+
+trainset <- subset(updated_data , train == T)
+testset <- subset(updated_data , train ==F)
+
+m1 <- lm(loan_amnt ~ ., data = trainset)
+
+summary(m1)
+
+m1_pred <- predict(m1 , newdata=testset)
+
+# Step 3: Calculate RMSE
+rmse <- sqrt(mean((m1_pred - testset$loan_amnt)^2))
+
+# Output RMSE
+print(rmse)
