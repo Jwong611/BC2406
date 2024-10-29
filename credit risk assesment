@@ -15,11 +15,10 @@ library(caTools)        # train-test split
 library(car)            # multi-collinearity
 library(dplyr)
 
-
-setwd("C:/NTU/Y2S1/BC2406 - Predictive Analytics/Projects")
-
 # Importing data file and store it as data table data
 data <- fread('credit_risk_dataset.csv')
+summary(data)
+dim(data)
 
 # Show whole numbers instead of scientific notation
 options("scipen" = 100)
@@ -95,8 +94,6 @@ ggplot(data = data_short, aes(x = loan_status)) + geom_bar()
 # Historical Loan Defaults Plot
 ggplot(data = data_short, aes(x = cb_person_default_on_file)) + geom_bar()
 
-########################################## Bivariate Analysis ############################################
-
 ########################################## Categorical Variables ############################################
 # Distribution of Customers' Home Ownership Status
 ggplot(data, aes(x = person_home_ownership)) + 
@@ -129,31 +126,38 @@ ggplot(data, aes(x = cb_person_cred_hist_length)) +
   labs(title = "Distribution of Customers' Credit History Length", x = "Credit History Length", y = "Count")
 
 ########################################## Continuous Variables ############################################
-
 # Distribution of customer's age
-ggplot(data, aes(x = person_age)) + geom_histogram(aes(y = after_stat(density)), fill = "lightpink", bins = 30) + geom_density(size = 1) +
-  geom_vline(aes(xintercept = mean(person_age)), color = "blue", linetype = "dashed") +
+ggplot(data, aes(x = person_age)) + geom_histogram(aes(y = after_stat(count)), fill = "lightpink", bins = 30) +
   labs(title = "Distribution of Customers' Age", x = "Age (Years)") # Age is very right skewed
 
+ggplot(data, aes(y = person_age)) + geom_boxplot(fill = "lightpink") +
+  labs(title = "Distribution of Customers' Age")
+
 # Distribution of customer's income
-ggplot(data, aes(x = person_income)) + geom_histogram(aes(y = after_stat(density)), fill = "lightpink", bins = 30) + geom_density(size = 1) +
-  geom_vline(aes(xintercept = mean(person_income)), color = "blue", linetype = "dashed") +
+ggplot(data, aes(x = person_income)) + geom_histogram(aes(y = after_stat(count)), fill = "lightpink", bins = 30) +
   labs(title = "Distribution of Customers' Income", x = "Income (S$)") # Income is very right skewed
 
+ggplot(data, aes(y = person_income)) + geom_boxplot(fill = "lightpink") +
+  labs(title = "Distribution of Customers' Income")
+
 # Distribution of Customers' Length of Employment
-ggplot(data, aes(x = person_emp_length)) + geom_histogram(aes(y = after_stat(density)), fill = "lightpink", bins = 30) + geom_density(size = 1) +
-  geom_vline(aes(xintercept = mean(person_emp_length)), color = "blue", linetype = "dashed") +
+ggplot(data, aes(x = person_emp_length)) + geom_histogram(aes(y = after_stat(count)), fill = "lightpink", bins = 30) +
   labs(title = "Distribution of Customers' Employment Length", x = " Length of Employment (Years)")
 
 ggplot(data, aes(y =  person_emp_length)) + geom_boxplot(fill = "lightpink") + 
   labs(title = "Distribution of Customers' Employment Length", y = "Length of Employment (Years)")
 
 # Distribution of Loan Interest Rates
-ggplot(data, aes(x = loan_int_rate)) + geom_histogram(aes(y = after_stat(density)), fill = "lightpink", bins = 30) + geom_density(size = 1) +
-  geom_vline(aes(xintercept = mean(person_emp_length)), color = "blue", linetype = "dashed") +
-  labs(title = "Distribution of Customers' Employment Length", x = " Length of Employment (Years)")
+ggplot(data, aes(x = loan_int_rate)) + geom_histogram(aes(y = after_stat(count)), fill = "lightpink", bins = 30) +
+  labs(title = "Distribution of Loan Interest Rates", x = " Loan Interest Rates")
+
+ggplot(data, aes(y =  loan_int_rate)) + geom_boxplot(fill = "lightpink") + 
+  labs(title = "Distribution of Loan Interest Rates", y = "Loan Interest Rates")
 
 # Distribution of Customer's Loan Amount
+ggplot(data, aes(x = loan_amnt)) + geom_histogram(aes(y = after_stat(count)), fill = "lightpink", bins = 30) +
+  labs(title = "Distribution of Customer's Loan Amounts", x = " Loan Amounts")
+
 ggplot(data, aes(y =  loan_amnt)) + geom_boxplot(fill = "lightpink") + 
   labs(title = "Distribution of Customers' Loan Amount", y = "Loan Amount (S$)")
 
@@ -161,6 +165,8 @@ ggplot(data, aes(y =  loan_amnt)) + geom_boxplot(fill = "lightpink") +
 ggplot(data, aes(y =  cb_person_cred_hist_length)) + geom_boxplot(fill = "lightpink") + 
   labs(title = "Distribution of Customers' Credit History Length", y = "Credit History Length (Years)")
 
+ggplot(data, aes(y =  cb_person_cred_hist_length)) + geom_boxplot(fill = "lightpink") + 
+  labs(title = "Distribution of Customers' Credit History Length", y = "Credit History Length (Years)")
 
 ############################################# Correlation Matrix #################################################
 data_copy <- copy(data)
@@ -194,6 +200,12 @@ ggplot(data, aes(y = person_income)) + geom_boxplot(fill = "lightgreen") +
 ggplot(data, aes(y = loan_percent_income)) + geom_boxplot(fill = "lightgreen") +
   facet_wrap(~ loan_status) +
   labs(title = "Customers' loan percentage in relation to Loan Status")
+
+#-----------------------------------------------------------------------------------------------------------#
+# Data Transformation
+#-----------------------------------------------------------------------------------------------------------#
+# Log of income
+data$person_income <- log(data$person_income + 1) 
 
 #-----------------------------------------------------------------------------------------------------------#
 # Building & Evaluating Models
