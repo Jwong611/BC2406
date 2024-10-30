@@ -13,11 +13,17 @@ library(rpart)          # CART
 library(rpart.plot)     # enhanced tree plots
 library(caTools)        # train-test split
 library(car)            # multi-collinearity
-library(dplyr)
+
+setwd("C:/NTU/Y2S1/BC2406 - Predictive Analytics/Projects")
+
 
 # Importing data file and store it as data table data
 data <- fread('credit_risk_dataset.csv')
+
+# Summary of data 
 summary(data)
+
+# Dimensions of Data
 dim(data)
 
 # Show whole numbers instead of scientific notation
@@ -48,52 +54,6 @@ data$loan_status <- factor(data$loan_status,
 # Data Exploration
 #-----------------------------------------------------------------------------------------------------------#
 ########################################## Univariate Analysis ############################################
-
-########################################## Continuous Variables ############################################
-
-# Age Plot
-ggplot(data = data, aes(x = person_age)) + geom_histogram()
-
-# Income Plot
-ggplot(data = data, aes(y = log(person_income) , x = factor(1))) + geom_boxplot()
-
-# Employment Length (in years) Plot
-ggplot(data = data, aes(x = person_emp_length)) + geom_histogram()
-
-# Loan Amount Plot
-ggplot(data = data, aes(x = loan_amnt)) + geom_histogram()
-
-# Loan Interest Rate Plot
-ggplot(data = data, aes(x = loan_int_rate)) + geom_histogram()
-
-# Loan Percent Income plot
-ggplot(data = data, aes(y = loan_percent_income , x = factor(1))) + geom_boxplot()
-
-# Credit History Length Plot
-ggplot(data = data, aes(x = cb_person_cred_hist_length)) + geom_histogram()
-
-########################################## Categorical Variables ############################################
-# Home Ownership plot
-ggplot(data = data, aes(x = person_home_ownership)) + geom_bar()
-
-# Loan Intent Plot
-# Renaming variables under loan_intent to make plot clearer
-data_short <- data %>%
-  mutate(loan_intent = recode(loan_intent,
-                              "PERSONAL" = "Per",
-                              "EDUCATION" = "Edu",
-                              "MEDICAL" = "Med",
-                              "VENTURE" = "Ven",
-                              "HOMEIMPROVEMENT" = "Home",
-                              "DEBTCONSOLIDATION" = "Debt"))
-ggplot(data = data_short, aes(x = loan_intent)) + geom_bar()
-
-# Loan Status Plot
-ggplot(data = data_short, aes(x = loan_status)) + geom_bar()
-
-# Historical Loan Defaults Plot
-ggplot(data = data_short, aes(x = cb_person_default_on_file)) + geom_bar()
-
 ########################################## Categorical Variables ############################################
 # Distribution of Customers' Home Ownership Status
 ggplot(data, aes(x = person_home_ownership)) + 
@@ -194,7 +154,7 @@ ggplot(data, aes(x = person_age, y = cb_person_cred_hist_length)) +
 # Customers' Home Ownership Status vs Income
 ggplot(data, aes(y = person_income)) + geom_boxplot(fill = "lightgreen") +
   facet_wrap(~ person_home_ownership) +
-  labs(title = "Customers' Income Distrbution in Relation to Home Ownership Status")
+  labs(title = "Customers' Income Distribution in relation to Home Ownership Status")
 
 # Loan percentage of Income Vs Loan Status
 ggplot(data, aes(y = loan_percent_income)) + geom_boxplot(fill = "lightgreen") +
@@ -283,44 +243,60 @@ table(actual = testset$loan_status, prediction = m4.pred)
 mean(testset$loan_status == m4.pred)
 
 #############################################################################################
-#Linear Regression
+#Linear Regression Model for Predicted Defaults
 
-set.seed(2)
-library(glm2)
-library(caTools)
+# Extracting data that was predicted to be loan defaults from the CART model
+default_data <- subset(testset, m4.pred == "Default")
 
-train <- sample.split(data$loan_amnt , SplitRatio = 0.7)
+# Split data into train and test sets
+split <- sample.split(default_data$loan_amnt , SplitRatio = 0.7)
+trainset_default <- subset(default_data , split == T)
+testset_default <- subset(default_data , split == F)
 
-trainset <- subset(data , train == T)
-testset <- subset(data , train ==F)
+# Training Linear Regression Model
+m5 <- lm(loan_amnt ~ ., data = trainset_default)
 
-m1 <- lm(loan_amnt ~ ., data = trainset)
+# Summary of Model
+summary(m5)
 
-summary(m1)
+# Predict on test set
+m5.pred <- predict(m5 , newdata = testset_default)
 
-m1_pred <- predict(m1 , newdata=testset)
+# Evaluate model performance
+mse <- mean((testset_default$loan_amnt - m5.pred)^2)
+rmse <- sqrt(mse)
+cat("Mean Squared Error:", mse, "\n")
+cat("Root Mean Squared Error:", rmse, "\n")
 
-# Step 3: Calculate RMSE
-rmse <- sqrt(mean((m1_pred - testset$loan_amnt)^2))
+# Updated Linear Regression Model
+m6 <- step(m5, direction = "backward")
 
-# Output RMSE
-print(rmse)
+# Summary of model
+summary(m6)
 
-updated_data = data[, ":="(person_age = NULL ,cb_person_default_on_fileY  = NULL ,  cb_person_cred_hist_length = NULL)]
+# Predict on test set
+m6.pred <- predict(m6, newdata = testset_default)
 
-train <- sample.split(updated_data$loan_amnt , SplitRatio = 0.7)
+# Evaluate model performance
+mse <- mean((testset_default$loan_amnt - m6.pred)^2)
+rmse <- sqrt(mse)
+cat("Mean Squared Error:", mse, "\n")
+cat("Root Mean Squared Error:", rmse, "\n")
 
-trainset <- subset(updated_data , train == T)
-testset <- subset(updated_data , train ==F)
+# Example prediction for new borrower
+new_borrower <- data.frame(
+  person_age = 30,
+  person_income = 50000,
+  person_emp_length = 5,
+  loan_int_rate = 0.1,
+  loan_percent_income = 0.2,
+  cb_person_cred_hist_length = 10,
+  person_home_ownership = factor("OWN", levels = levels(trainset$person_home_ownership)),
+  loan_intent = factor("DEBTCONSOLIDATION", levels = levels(trainset$loan_intent)),
+  loan_status = factor("Default", levels = levels(trainset$loan_status)),
+  cb_person_default_on_file = factor("Y", levels = levels(trainset$cb_person_default_on_file))
+)
 
-m1 <- lm(loan_amnt ~ ., data = trainset)
-
-summary(m1)
-
-m1_pred <- predict(m1 , newdata=testset)
-
-# Step 3: Calculate RMSE
-rmse <- sqrt(mean((m1_pred - testset$loan_amnt)^2))
-
-# Output RMSE
-print(rmse)
+# Predict the maximum loan amount
+predicted_loan_amnt <- predict(m6, newdata = new_borrower)
+cat("Predicted Maximum Loan Amount for New Borrower:", predicted_loan_amnt, "\n")
