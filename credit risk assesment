@@ -14,9 +14,6 @@ library(rpart.plot)     # enhanced tree plots
 library(caTools)        # train-test split
 library(car)            # multi-collinearity
 
-setwd("C:/NTU/Y2S1/BC2406 - Predictive Analytics/Projects")
-
-
 # Importing data file and store it as data table data
 data <- fread('credit_risk_dataset.csv')
 
@@ -161,6 +158,12 @@ ggplot(data, aes(y = loan_percent_income)) + geom_boxplot(fill = "lightgreen") +
   facet_wrap(~ loan_status) +
   labs(title = "Customers' loan percentage in relation to Loan Status")
 
+# Income Vs Loan Status
+ggplot(data, aes(y = person_income)) + geom_boxplot(fill = "lightgreen") +
+  facet_wrap(~ loan_status) +
+  labs(title = "Customers' income in relation to Loan Status")
+
+
 #-----------------------------------------------------------------------------------------------------------#
 # Data Transformation
 #-----------------------------------------------------------------------------------------------------------#
@@ -189,6 +192,7 @@ m1.pred <- ifelse(m1.prob > 0.5 , "Default" , "Non-Default")
 
 # Confusion Matrix
 table(actual = testset$loan_status, prediction = m1.pred)
+
 # Accuracy of the model
 mean(testset$loan_status == m1.pred)
 
@@ -283,13 +287,31 @@ rmse <- sqrt(mse)
 cat("Mean Squared Error:", mse, "\n")
 cat("Root Mean Squared Error:", rmse, "\n")
 
+################################################################################
 # Example prediction for new borrower
 new_borrower <- data.frame(
   person_age = 30,
   person_income = 50000,
   person_emp_length = 5,
   loan_int_rate = 0.1,
-  loan_percent_income = 0.2,
+  loan_percent_income = 0.5,
+  cb_person_cred_hist_length = 10,
+  person_home_ownership = factor("OWN", levels = levels(trainset$person_home_ownership)),
+  loan_amnt = 25000,
+  loan_intent = factor("DEBTCONSOLIDATION", levels = levels(trainset$loan_intent)),
+  cb_person_default_on_file = factor("Y", levels = levels(trainset$cb_person_default_on_file))
+)
+
+# Predict the probability of default
+predicted_loan_default <- (predict(m4, newdata = new_borrower))[1]
+cat("Predicted Probability of Loan Default for New Borrower:", predicted_loan_default, "\n")
+
+new_borrower <- data.frame(
+  person_age = 30,
+  person_income = 50000,
+  person_emp_length = 5,
+  loan_int_rate = 0.1,
+  loan_percent_income = 0.5,
   cb_person_cred_hist_length = 10,
   person_home_ownership = factor("OWN", levels = levels(trainset$person_home_ownership)),
   loan_intent = factor("DEBTCONSOLIDATION", levels = levels(trainset$loan_intent)),
@@ -299,4 +321,4 @@ new_borrower <- data.frame(
 
 # Predict the maximum loan amount
 predicted_loan_amnt <- predict(m6, newdata = new_borrower)
-cat("Predicted Maximum Loan Amount for New Borrower:", predicted_loan_amnt, "\n")
+cat("Predicted Maximum Loan Amount for New Borrower:",predicted_loan_amnt, "\n")
